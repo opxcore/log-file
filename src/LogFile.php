@@ -1,5 +1,7 @@
 <?php
 
+namespace OpxCore\Log;
+
 class LogFile extends \Psr\Log\AbstractLogger
 {
     /**
