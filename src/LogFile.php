@@ -22,13 +22,13 @@ class LogFile extends \Psr\Log\AbstractLogger
     /**
      * Logs with an arbitrary level.
      *
-     * @param  mixed  $level
+     * @param  mixed $level
      * @param  string $message
-     * @param  array  $context
+     * @param  array $context
      *
      * @return  void
      */
-    public function log($level, $message, array $context = array()): void
+    public function log($level, $message, array $context = []): void
     {
         $logMessage = $this->interpolateMessage($message, $context);
 
@@ -50,7 +50,7 @@ class LogFile extends \Psr\Log\AbstractLogger
         /** @var \Exception $exception */
         $exception = $context['exception'] ?? null;
 
-        if($exception instanceof \Exception) {
+        if ($exception instanceof \Exception) {
             $stackTrace = $exception->getTraceAsString();
         }
 
@@ -67,7 +67,7 @@ class LogFile extends \Psr\Log\AbstractLogger
         // interpolate replacement values into the message and return
         $processed = strtr($message, $replace);
 
-        if(isset($stackTrace)) {
+        if (isset($stackTrace)) {
             $processed .= "\n{$stackTrace}";
         }
 
@@ -83,20 +83,20 @@ class LogFile extends \Psr\Log\AbstractLogger
      */
     protected function writeLog($message): void
     {
-        if(!isset($this->filename)) {
+        if (!isset($this->filename)) {
             throw new \OpxCore\Log\Exceptions\LogFileException('Log filename not set.');
         }
 
-        if(!file_exists($this->filename)) {
+        if (!file_exists($this->filename)) {
             $path = pathinfo($this->filename, PATHINFO_DIRNAME);
 
             // Prevent race conditions of mkdir
-            if(!is_dir($path) && (!mkdir($path, 0644, true) || !is_dir($path))) {
+            if (!is_dir($path) && (!mkdir($path, 0644, true) || !is_dir($path))) {
                 throw new \OpxCore\Log\Exceptions\LogFileException("Could not create directory [{$path}]");
             }
         }
 
-        if(file_put_contents($this->filename, $message, FILE_APPEND) === false) {
+        if (file_put_contents($this->filename, $message, FILE_APPEND) === false) {
             throw new \OpxCore\Log\Exceptions\LogFileException("Could not write to file [{$this->filename}]");
         }
     }
