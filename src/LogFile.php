@@ -64,7 +64,7 @@ class LogFile extends AbstractLogger
             $path = pathinfo($this->filename, PATHINFO_DIRNAME);
 
             // Prevent race conditions of mkdir
-            if (!is_dir($path) && (!@mkdir($path, 0644, true) || !is_dir($path))) {
+            if (!is_dir($path) && (!@mkdir($path, 0755, true) || !is_dir($path))) {
                 throw new LogFileException("Could not create directory [{$path}]");
             }
         }
