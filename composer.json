@@ -20,7 +20,7 @@
   ],
   "require": {
     "php": "^7.4",
-    "opxcore/log-interface": "^1.0.8"
+    "opxcore/log-interface": "^1.0.9"
   },
   "require-dev": {
     "phpunit/phpunit": "^9.5.0"
