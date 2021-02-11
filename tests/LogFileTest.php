@@ -10,6 +10,7 @@
 
 namespace OpxCore\Tests\Log;
 
+use Exception;
 use OpxCore\Log\Exceptions\LogFileException;
 use OpxCore\Log\LogFile;
 use PHPUnit\Framework\TestCase;
@@ -60,23 +61,52 @@ class LogFileTest extends TestCase
 
     public function testLogPermissionDenied(): void
     {
-        $file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'log-test' . DIRECTORY_SEPARATOR . 'log-test';
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'log-test';
+        $file = $dir . DIRECTORY_SEPARATOR . 'test.log';
+        if (!file_exists($file)) {
+            if (!is_dir($dir)) {
+                mkdir($dir);
+            }
+            touch($file);
+        }
+        chmod($file, 0500);
 
         $logger = new LogFile($file);
 
-        $this->expectException(LogFileException::class);
+        $class = null;
 
-        $logger->log('info', 'hello {context}', ['context' => 'world']);
+        try {
+            $logger->log('info', 'hello {context}', ['context' => 'world']);
+        } catch (Exception $e) {
+            $class = get_class($e);
+        }
+        self::assertEquals(LogFileException::class, $class);
+        chmod($file, 0777);
+        unlink($file);
+        rmdir($dir);
     }
 
     public function testLogDirPermissionDenied(): void
     {
-        $file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'log-test' . DIRECTORY_SEPARATOR . 'log-test' . DIRECTORY_SEPARATOR . 'log-test';
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'log-test';
+        $file = $dir . DIRECTORY_SEPARATOR . 'test' . DIRECTORY_SEPARATOR . 'test.log';
+        if (!is_dir($dir)) {
+            mkdir($dir);
+        }
+        chmod($dir, 0500);
 
         $logger = new LogFile($file);
 
-        $this->expectException(LogFileException::class);
+        $class = null;
 
-        $logger->log('info', 'hello {context}', ['context' => 'world']);
+        try {
+            $logger->log('info', 'hello {context}', ['context' => 'world']);
+        } catch (Exception $e) {
+            $class = get_class($e);
+        }
+        self::assertEquals(LogFileException::class, $class);
+
+        chmod($dir, 0777);
+        rmdir($dir);
     }
 }
